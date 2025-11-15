@@ -82,7 +82,7 @@ int main()
     ourShader.createProgram();
     // load models
     // -----------
-    Model ourModel("source_files/models/cubes/cube-border.obj");
+    Model ourModel("source_files/models/cubes/cube-center/center-cube.obj");
 
     
     // draw in wireframe
