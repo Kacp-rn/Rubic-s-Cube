@@ -82,7 +82,7 @@ int main()
     ourShader.createProgram();
     // load models
     // -----------
-    Model ourModel("source_files/models/BackPack.obj");
+    Model ourModel("source_files/models/backpack/backpack.obj");
 
     
     // draw in wireframe
