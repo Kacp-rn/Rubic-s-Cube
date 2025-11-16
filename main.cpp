@@ -82,7 +82,9 @@ int main()
     ourShader.createProgram();
     // load models
     // -----------
-    Model ourModel("source_files/models/cubes/cube-corner/corner-cube.obj");
+    Model Red_Cube_Corner1("source_files/models/cubes/cube-corner/corner-cube.obj");
+    Model Red_Cube_Border1("source_files/models/cubes/cube-border/border-cube.obj");
+    Model Red_Cube_Center("source_files/models/cubes/cube-center/center-cube.obj");
 
     
     // draw in wireframe
@@ -104,7 +106,7 @@ int main()
 
         // render
         // ------
-        glClearColor(0.0f, 0.05f, 0.0f, 1.0f);
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
@@ -121,7 +123,9 @@ int main()
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        Red_Cube_Corner1.Draw(ourShader);
+        Red_Cube_Border1.Draw(ourShader);
+        Red_Cube_Center.Draw(ourShader);
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
