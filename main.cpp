@@ -82,10 +82,10 @@ int main()
     ourShader.createProgram();
     // load models
     // -----------
-    Model Red_Cube_Corner1("source_files/models/cubes/red-cubes/cube-corner/corner-cube.obj");
-    Model Red_Cube_Border1("source_files/models/cubes/red-cubes/cube-border/border-cube.obj");
+    Model Red_Cube_Corner("source_files/models/cubes/red-cubes/cube-corner/corner-cube.obj");
+    Model Red_Cube_Border("source_files/models/cubes/red-cubes/cube-border/border-cube.obj");
     Model Red_Cube_Center("source_files/models/cubes/red-cubes/cube-center/center-cube.obj");
-    Model Blue_Cube_Corner("source_files/models/cubes/blue-cubes/cube-corner/corner-cube.obj");
+    
 
     
     // draw in wireframe
@@ -122,14 +122,44 @@ int main()
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        Red_Cube_Corner1.Draw(ourShader);
-        Red_Cube_Border1.Draw(ourShader);
+        
+        if(true)//I need to make code shorter for navigate
+        {
+        //Red cubes --- normal position 
+
         Red_Cube_Center.Draw(ourShader);
-       // Blue_Cube_Corner.Draw(ourShader);
+        Red_Cube_Corner.Draw(ourShader);
+        Red_Cube_Border.Draw(ourShader);
 
+        // Transformations stuff
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+        ourShader.setMat4("model", model);
+        
+        //Red cubes --- turned 90 degrees on z axis {only corner & border}
 
+        Red_Cube_Border.Draw(ourShader);
+        Red_Cube_Corner.Draw(ourShader);
+
+        // Transformations stuff
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+        ourShader.setMat4("model", model);
+        
+        //Red cubes --- turned 90 degrees on z axis {only corner & border}
+
+        Red_Cube_Border.Draw(ourShader);
+        Red_Cube_Corner.Draw(ourShader);
+
+        // Transformations stuff
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+        ourShader.setMat4("model", model);
+        
+        //Red cubes --- turned 90 degrees on z axis {only corner & border}
+
+        Red_Cube_Border.Draw(ourShader);
+        Red_Cube_Corner.Draw(ourShader);
+
+        }
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
