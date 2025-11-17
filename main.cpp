@@ -127,7 +127,7 @@ int main()
         Red_Cube_Corner1.Draw(ourShader);
         Red_Cube_Border1.Draw(ourShader);
         Red_Cube_Center.Draw(ourShader);
-        Blue_Cube_Corner.Draw(ourShader);
+       // Blue_Cube_Corner.Draw(ourShader);
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
