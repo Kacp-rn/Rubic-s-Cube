@@ -82,9 +82,10 @@ int main()
     ourShader.createProgram();
     // load models
     // -----------
-    Model Red_Cube_Corner1("source_files/models/cubes/cube-corner/corner-cube.obj");
-    Model Red_Cube_Border1("source_files/models/cubes/cube-border/border-cube.obj");
-    Model Red_Cube_Center("source_files/models/cubes/cube-center/center-cube.obj");
+    Model Red_Cube_Corner1("source_files/models/cubes/red-cubes/cube-corner/corner-cube.obj");
+    Model Red_Cube_Border1("source_files/models/cubes/red-cubes/cube-border/border-cube.obj");
+    Model Red_Cube_Center("source_files/models/cubes/red-cubes/cube-center/center-cube.obj");
+    Model Blue_Cube_Corner("source_files/models/cubes/blue-cubes/cube-corner/corner-cube.obj");
 
     
     // draw in wireframe
@@ -126,6 +127,7 @@ int main()
         Red_Cube_Corner1.Draw(ourShader);
         Red_Cube_Border1.Draw(ourShader);
         Red_Cube_Center.Draw(ourShader);
+        Blue_Cube_Corner.Draw(ourShader);
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
