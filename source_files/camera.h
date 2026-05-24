@@ -38,7 +38,8 @@ public:
     float MouseSensitivity;
     float Zoom;
 
-    // constructor with vectors
+    // * Initializes camera with position vector and euler angles
+    // ? @param position - camera position (default: origin), @param up - world up vector, @param yaw - rotation around Y axis, @param pitch - rotation around X axis
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         Position = position;
@@ -47,7 +48,8 @@ public:
         Pitch = pitch;
         updateCameraVectors();
     }
-    // constructor with scalar values
+    // * Initializes camera with individual position and up vector components
+    // ? @param posX,posY,posZ - camera position components, @param upX,upY,upZ - world up components, @param yaw - Y rotation, @param pitch - X rotation
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
     {
         Position = glm::vec3(posX, posY, posZ);
@@ -57,13 +59,14 @@ public:
         updateCameraVectors();
     }
 
-    // returns the view matrix calculated using Euler Angles and the LookAt Matrix
+    // * Returns view matrix calculated using Euler Angles and LookAt transform
     glm::mat4 GetViewMatrix()
     {
         return glm::lookAt(Position, Position + Front, Up);
     }
 
-    // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
+    // * Processes keyboard input and updates camera position based on direction and delta time
+    // ? @param direction - movement direction enum (FORWARD/BACKWARD/LEFT/RIGHT), @param deltaTime - time since last frame
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
         float velocity = MovementSpeed * deltaTime;
@@ -77,7 +80,8 @@ public:
             Position += Right * velocity;
     }
 
-    // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
+    // * Processes mouse movement and updates camera rotation (Yaw and Pitch) accordingly
+    // ? @param xoffset - mouse X movement offset, @param yoffset - mouse Y movement offset, @param constrainPitch - limit pitch to prevent screen flip
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
     {
         xoffset *= MouseSensitivity;
@@ -99,7 +103,8 @@ public:
         updateCameraVectors();
     }
 
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
+    // * Adjusts camera zoom level based on mouse scroll wheel input
+    // ? @param yoffset - scroll wheel offset
     void ProcessMouseScroll(float yoffset)
     {
         Zoom -= (float)yoffset;
@@ -109,8 +114,32 @@ public:
             Zoom = 45.0f;
     }
 
+    // * Sets camera position directly
+    void SetPosition(const glm::vec3& position)
+    {
+        Position = position;
+        updateCameraVectors();
+    }
+
+    // * Sets camera yaw and pitch directly, then updates direction vectors
+    void SetOrientation(float yaw, float pitch)
+    {
+        Yaw = yaw;
+        Pitch = pitch;
+        updateCameraVectors();
+    }
+
+    // * Orients the camera to look at a target point from its current position
+    void LookAt(const glm::vec3& target)
+    {
+        glm::vec3 direction = glm::normalize(target - Position);
+        Pitch = glm::degrees(asin(glm::clamp(direction.y, -1.0f, 1.0f)));
+        Yaw = glm::degrees(atan2(direction.z, direction.x));
+        updateCameraVectors();
+    }
+
 private:
-    // calculates the front vector from the Camera's (updated) Euler Angles
+    // * Recalculates camera direction vectors (Front, Right, Up) from updated Euler Angles
     void updateCameraVectors()
     {
         // calculate the new Front vector

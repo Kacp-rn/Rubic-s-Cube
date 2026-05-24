@@ -20,6 +20,8 @@
 #include <vector>
 using namespace std;
 
+// ! Loads texture from file using STB Image and configures OpenGL texture settings
+// ? @param path - texture file path, @param directory - parent directory path, @param gamma - enable gamma correction
 unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
 
 class Model 
@@ -31,13 +33,15 @@ public:
     string directory;
     bool gammaCorrection;
 
-    // constructor, expects a filepath to a 3D model.
+    // ! Loads 3D model from specified file path using ASSIMP
+    // ? @param path - path to model file, @param gamma - enable gamma correction
     Model(string const &path, bool gamma = false) : gammaCorrection(gamma)
     {
         loadModel(path);
     }
 
-    // draws the model, and thus all its meshes
+    // * Renders all model meshes using provided shader program
+    // ? @param shader - shader program for rendering
     void Draw(Shader &shader)
     {
         for(unsigned int i = 0; i < meshes.size(); i++)
@@ -45,7 +49,8 @@ public:
     }
     
 private:
-    // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
+    // ! Loads 3D model from file using ASSIMP and stores resulting meshes
+    // ? @param path - path to model file
     void loadModel(string const &path)
     {
         // read file via ASSIMP
@@ -64,7 +69,8 @@ private:
         processNode(scene->mRootNode, scene);
     }
 
-    // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
+    // * Recursively processes node and its children, extracting mesh data from ASSIMP scene
+    // ? @param node - ASSIMP node to process, @param scene - ASSIMP scene data
     void processNode(aiNode *node, const aiScene *scene)
     {
         // process each mesh located at the current node
@@ -83,6 +89,8 @@ private:
 
     }
 
+    // * Converts ASSIMP mesh data into internal Mesh structure with vertices, indices, and textures
+    // ? @param mesh - ASSIMP mesh to process, @param scene - ASSIMP scene containing material data
     Mesh processMesh(aiMesh *mesh, const aiScene *scene)
     {
         // data to fill
@@ -167,8 +175,8 @@ private:
         return Mesh(vertices, indices, textures);
     }
 
-    // checks all material textures of a given type and loads the textures if they're not loaded yet.
-    // the required info is returned as a Texture struct.
+    // * Loads material textures of given type and returns array of loaded Texture structures
+    // ? @param mat - ASSIMP material to load textures from, @param type - texture type to load, @param typeName - shader uniform name prefix
     vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, string typeName)
     {
         vector<Texture> textures;
@@ -202,9 +210,11 @@ private:
 };
 
 
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma)
-{
-    string filename = string(path);
+    // ! Loads texture from file using STB Image and configures OpenGL texture settings
+    // ? @param path - texture file path, @param directory - parent directory path, @param gamma - enable gamma correction
+    inline unsigned int TextureFromFile(const char *path, const string &directory, bool gamma)
+    {
+        string filename = string(path);
     filename = directory + '/' + filename;
 
     unsigned int textureID;

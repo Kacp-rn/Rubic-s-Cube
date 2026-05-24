@@ -8,6 +8,8 @@
 #include "source_files/camera.h"
 #include "source_files/shader.h"
 #include "source_files/model.h"
+#include "source_files/Szachownica.h"
+#include "source_files/Game.h"
 
 #include <iostream>
 
@@ -21,7 +23,52 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(3.5f, 12.0f, -8.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, -45.0f);
+// Forward declare game pointer for callbacks
+static Game *g_game = nullptr;
+
+// mouse button callback for selecting fields
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button != GLFW_MOUSE_BUTTON_LEFT || action != GLFW_PRESS) return;
+    if (!g_game) return;
+
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    // compute NDC
+    float xndc = (2.0f * (float)xpos) / (float)SCR_WIDTH - 1.0f;
+    float yndc = 1.0f - (2.0f * (float)ypos) / (float)SCR_HEIGHT;
+
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 inv = glm::inverse(projection * view);
+
+    glm::vec4 nearPoint = inv * glm::vec4(xndc, yndc, -1.0f, 1.0f);
+    glm::vec4 farPoint = inv * glm::vec4(xndc, yndc, 1.0f, 1.0f);
+    nearPoint /= nearPoint.w;
+    farPoint /= farPoint.w;
+
+    glm::vec3 rayOrigin = camera.Position;
+    glm::vec3 rayDir = glm::normalize(glm::vec3(farPoint) - glm::vec3(nearPoint));
+
+    // intersect with plane y=0
+    if (fabs(rayDir.y) < 1e-6f) return; // parallel
+    float t = - (rayOrigin.y) / rayDir.y;
+    if (t <= 0) return;
+    glm::vec3 intersect = rayOrigin + rayDir * t;
+
+    int col = static_cast<int>(floor(intersect.x));
+    int row = static_cast<int>(floor(intersect.z));
+    if (col < 0 || col > 7 || row < 0 || row > 7) return;
+
+    int fieldId = g_game->coordsToFieldId(row, col);
+    if (fieldId >= 0)
+    {
+        g_game->handleFieldClick(fieldId);
+    }
+}
+
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -54,11 +101,8 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-
-    // tell GLFW to capture our mouse
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // no free camera movement: only mouse clicks are used for game interaction
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -80,11 +124,16 @@ int main()
     Shader ourShader;
     ourShader.compileShader("source_files/shaders/vertex.glsl","source_files/shaders/fragment.glsl");
     ourShader.createProgram();
-    // load models
-    // -----------
-    Model Red_Cube_Corner("source_files/models/cubes/red-cubes/cube-corner/corner-cube.obj");
-    Model Red_Cube_Border("source_files/models/cubes/red-cubes/cube-border/border-cube.obj");
-    Model Red_Cube_Center("source_files/models/cubes/red-cubes/cube-center/center-cube.obj");
+    // create board (loads 64 cubes)
+    Szachownica board;
+    Game game;
+    g_game = &game;
+    const glm::vec3 boardCenter(3.5f, 0.0f, 3.5f);
+    camera.SetPosition(glm::vec3(3.5f, 12.0f, -8.0f));
+    camera.LookAt(boardCenter);
+    // register mouse button callback to handle clicks
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+   
     
 
     
@@ -105,9 +154,27 @@ int main()
         // -----
         processInput(window);
 
+        // update camera rotation when turn changes
+        static PlayerTurn lastTurn = game.getCurrentTurn();
+        if (game.getCurrentTurn() != lastTurn)
+        {
+            lastTurn = game.getCurrentTurn();
+            if (lastTurn == PlayerTurn::WHITE)
+            {
+                camera.SetPosition(glm::vec3(3.5f, 12.0f, -8.0f));
+                camera.LookAt(boardCenter);
+            }
+            else
+            {
+                camera.SetPosition(glm::vec3(3.5f, 12.0f, 15.0f));
+                camera.LookAt(boardCenter);
+            }
+        }
+
         // render
         // ------
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        glClearColor(0.65f, 0.60f, 0.20f, 1.0f);
+        //glClearColor(0.1f,0.1f,0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
@@ -124,42 +191,10 @@ int main()
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         ourShader.setMat4("model", model);
         
-        if(true)//I need to make code shorter for navigate
-        {
-        //Red cubes --- normal position 
-
-        Red_Cube_Center.Draw(ourShader);
-        Red_Cube_Corner.Draw(ourShader);
-        Red_Cube_Border.Draw(ourShader);
-
-        // Transformations stuff
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
-        ourShader.setMat4("model", model);
-        
-        //Red cubes --- turned 90 degrees on z axis {only corner & border}
-
-        Red_Cube_Border.Draw(ourShader);
-        Red_Cube_Corner.Draw(ourShader);
-
-        // Transformations stuff
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
-        ourShader.setMat4("model", model);
-        
-        //Red cubes --- turned 90 degrees on z axis {only corner & border}
-
-        Red_Cube_Border.Draw(ourShader);
-        Red_Cube_Corner.Draw(ourShader);
-
-        // Transformations stuff
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
-        ourShader.setMat4("model", model);
-        
-        //Red cubes --- turned 90 degrees on z axis {only corner & border}
-
-        Red_Cube_Border.Draw(ourShader);
-        Red_Cube_Corner.Draw(ourShader);
-
-        }
+        // draw board (cubes)
+        board.Draw(ourShader);
+        // draw pieces from game state
+        board.DrawPieces(game, ourShader);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -179,14 +214,7 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+    // camera movement disabled: view is fixed above the board to support two-player checkers.
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

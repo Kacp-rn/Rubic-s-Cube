@@ -1,0 +1,13 @@
+# Blender 5.1.2 MTL File: 'Szachownica_base_color.blend'
+# www.blender.org
+
+newmtl Wood_Old_Silver
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.201000 0.201000 0.201000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd textures/tree-silver_diffuse-alt.jpg
+map_Ns textures/tree-silver_roughness.jpg
+map_Bump -bm 1.000000 textures/tree-silver_normal.jpg

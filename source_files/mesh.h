@@ -44,7 +44,8 @@ public:
     vector<Texture>      textures;
     unsigned int VAO;
 
-    // constructor
+    // * Initializes mesh with vertex data, indices, and textures for rendering
+    // ? @param vertices - vertex data array, @param indices - element indices, @param textures - texture array
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
     {
         this->vertices = vertices;
@@ -55,7 +56,8 @@ public:
         setupMesh();
     }
 
-    // render the mesh
+    // * Renders mesh with bound textures and applies shader uniforms for each texture type
+    // ? @param shader - shader program to use for rendering
     void Draw(Shader &shader) 
     {
         // bind appropriate textures
@@ -97,7 +99,7 @@ private:
     // render data 
     unsigned int VBO, EBO;
 
-    // initializes all the buffer objects/arrays
+    // ! Initializes vertex buffers (VAO, VBO, EBO) and configures vertex attribute pointers
     void setupMesh()
     {
         // create buffers/arrays
