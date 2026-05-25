@@ -92,7 +92,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Warcaby", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -173,8 +173,10 @@ int main()
 
         // render
         // ------
-        glClearColor(0.65f, 0.60f, 0.20f, 1.0f);
-        //glClearColor(0.1f,0.1f,0.1f, 1.0f);
+        //!//////////////////////////////////////////////////////////////////////////////////////
+        //glClearColor(0.65f, 0.60f, 0.20f, 1.0f);
+        glClearColor(0.22f, 0.01f, 0.54f, 1.0f);
+        //!//////////////////////////////////////////////////////////////////////////////////////
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
