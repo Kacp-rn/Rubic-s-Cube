@@ -129,7 +129,7 @@ int main()
     Game game;
     g_game = &game;
     const glm::vec3 boardCenter(3.5f, 0.0f, 3.5f);
-    camera.SetPosition(glm::vec3(3.5f, 12.0f, -8.0f));
+    camera.SetPosition(glm::vec3(3.5f, 12.0f, 15.0f));
     camera.LookAt(boardCenter);
     // register mouse button callback to handle clicks
     glfwSetMouseButtonCallback(window, mouse_button_callback);
@@ -161,12 +161,12 @@ int main()
             lastTurn = game.getCurrentTurn();
             if (lastTurn == PlayerTurn::WHITE)
             {
-                camera.SetPosition(glm::vec3(3.5f, 12.0f, -8.0f));
+                camera.SetPosition(glm::vec3(3.5f, 12.0f, 15.0f));
                 camera.LookAt(boardCenter);
             }
             else
             {
-                camera.SetPosition(glm::vec3(3.5f, 12.0f, 15.0f));
+                camera.SetPosition(glm::vec3(3.5f, 12.0f, -8.0f));
                 camera.LookAt(boardCenter);
             }
         }
